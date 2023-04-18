@@ -8,6 +8,20 @@ export class Engine {
     this.canvas.height = window.innerHeight - 10;
     this.toDelete = [];
     this.currentElementID = 0;
+    this.mouseX = null;
+    this.mouseY = null;
+    this.isMouseClicked = false;
+
+    this.canvas.onmousemove = (event) => {
+      this.mouseX = event.x;
+      this.mouseY = event.y
+    };
+    this.canvas.onmousedown = () => {
+      this.isMouseClicked = true;
+    }
+    this.canvas.onmouseup = () => {
+      this.isMouseClicked = false;
+    }
   }
   registerEntity(entity) {
     this.updatedObjects.set(this.currentElementID, entity);
