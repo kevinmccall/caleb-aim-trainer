@@ -21,11 +21,7 @@ const canvas = document.getElementById("screen");
 const engine = new Engine();
 const spawnTimer = new Timer(CALEB_SPAWN_INTERVAL);
 const increaseDifficultyTimer = new Timer(CHANGE_RATE_INTERVAL);
-const audioCtx = new AudioContext()
 
-const audio = new AudioContext();
-const oscillatorNode = audioCtx.createOscillator();
-oscillatorNode.start(1);
 
 
 const init = () => {
