@@ -1,3 +1,5 @@
+import { getLivesLeft } from "./scorecounter.js";
+
 export class Engine {
   constructor() {
     this.canvas = document.getElementById("screen");
@@ -11,7 +13,7 @@ export class Engine {
     this.mouseX = null;
     this.mouseY = null;
     this.isMouseClicked = false;
-
+    this.playing = true;
     this.canvas.onmousemove = (event) => {
       this.mouseX = event.x;
       this.mouseY = event.y
@@ -54,7 +56,12 @@ export class Engine {
       this.updatedObjects.delete(id);
     });
     this.toDelete = [];
-    requestAnimationFrame(this.update.bind(this));
+    if (getLivesLeft() <= 0) {
+      this.playing = false;
+    }
+    if (this.playing) {
+      requestAnimationFrame(this.update.bind(this));
+    }
   }
 }
 

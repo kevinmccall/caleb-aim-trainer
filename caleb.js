@@ -1,5 +1,5 @@
 import { isPointInRect } from "./utils.js";
-import { getScore, increaseScore } from "./scorecounter.js";
+import { increaseScore, removeLife } from "./scorecounter.js";
 
 export const CALEB_WIDTH = 100;
 export const CALEB_HEIGHT = 100;
@@ -22,7 +22,8 @@ export function CalebObj(engine) {
   this.totalWidth = CALEB_WIDTH;
   this.totalHeight = CALEB_HEIGHT;
   this.calebID = null;
-  this.engine = engine
+  this.engine = engine;
+  this.onclick = null;
 }
 
 CalebObj.prototype.getVisualX = function() {
@@ -47,6 +48,7 @@ CalebObj.prototype.update = function(delta) {
     this.growing = false;
   } else if (Math.max(this.scaleX, this.scaleY) <= CALEB_END_SCALE && !this.growing) {
     this.engine.queueUnregisterEntity(this.calebID);
+    removeLife();
   }
 
   if (isPointInRect(this.engine.mouseX, this.engine.mouseY,
@@ -58,7 +60,9 @@ CalebObj.prototype.update = function(delta) {
     this.engine.isMouseClicked = false;
     this.engine.queueUnregisterEntity(this.calebID);
     increaseScore();
-    console.log(getScore())
+    if (this.onclick !== null && typeof this.onclick === 'function') {
+      this.onclick();
+    }
   }
 };
 
@@ -72,7 +76,7 @@ CalebObj.prototype.draw = function(ctx) {
   ctx.drawImage(this.image, this.getVisualX(), this.getVisualY(), this.scaleX * this.totalWidth, this.scaleY * this.totalHeight);
 };
 
-export const spawnCaleb = (engine, x, y) => {
+export const spawnCaleb = (engine, x, y, onclick) => {
   const caleb = new CalebObj(engine);
   caleb.x = x;
   caleb.y = y;
@@ -82,4 +86,5 @@ export const spawnCaleb = (engine, x, y) => {
   caleb.scaleY = 0;
   const id = engine.registerEntity(caleb);
   caleb.calebID = id;
+  caleb.onclick = onclick
 };

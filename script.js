@@ -1,6 +1,7 @@
 import { Engine, Timer } from "./engine.js";
 import { spawnCaleb, CALEB_WIDTH, CALEB_HEIGHT } from "./caleb.js";
 import { randRange } from "./utils.js";
+import { getScore } from "./scorecounter.js";
 
 
 const DOES_CALEB_STRAFE = false;
@@ -21,26 +22,32 @@ const canvas = document.getElementById("screen");
 const engine = new Engine();
 const spawnTimer = new Timer(CALEB_SPAWN_INTERVAL);
 const increaseDifficultyTimer = new Timer(CHANGE_RATE_INTERVAL);
+const scoreElement = document.getElementById('score');
 
 
 
 const init = () => {
-  const score = document.getElementById('score');
-  score.style.translate = engine.canvas.width / 2
+  score.style.left = '50%'
+  score.style.translate = 'translate(-50%)'
 }
+
+const calebOnClick = () => {
+  score.innerText = getScore();
+  console.log(getScore())
+};
 
 const start = () => {
   spawnTimer.func = () => {
     const randX = randRange(CALEB_WIDTH / 2, engine.canvas.width - CALEB_WIDTH / 2)
     const randY = randRange(CALEB_HEIGHT / 2, engine.canvas.height - CALEB_HEIGHT / 2)
-    spawnCaleb(engine, randX, randY);
+    spawnCaleb(engine, randX, randY, calebOnClick);
   }
   increaseDifficultyTimer.func = () => {
     spawnTimer.interval *= CALEB_RATE_INCREASE
   }
   engine.registerEntity(spawnTimer)
   engine.registerEntity(increaseDifficultyTimer)
-  spawnCaleb(engine, 100, 100);
+  spawnCaleb(engine, 100, 100, calebOnClick)
   engine.update();
 }
 init()
