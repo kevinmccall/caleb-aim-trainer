@@ -1,4 +1,5 @@
 import { isPointInRect } from "./utils.js";
+import { getScore, increaseScore } from "./scorecounter.js";
 
 export const CALEB_WIDTH = 100;
 export const CALEB_HEIGHT = 100;
@@ -8,21 +9,28 @@ const CALEB_END_SCALE = 0;
 const CALEB_GROWTH_RATE = 0.003;
 
 
-export function CalebObj(engine, x, y, width, height, scaleX = 0, scaleY = 0, dx = 0, dy = 0) {
-  this.x = x;
-  this.y = y;
-  this.dx = dx;
-  this.dy = dy;
-  this.scaleX = scaleX;
-  this.scaleY = scaleY;
+export function CalebObj(engine) {
+  this.x = 0;
+  this.y = 0;
+  this.dx = 0;
+  this.dy = 0;
+  this.scaleX = 1;
+  this.scaleY = 1;
   this.growing = true;
-  this.image = new Image(width, height);
+  this.image = new Image(CALEB_WIDTH, CALEB_HEIGHT);
   this.image.src = CALEB_IMG_PATH;
-  this.imageHeight = this.image.height;
-  this.width = width;
-  this.height = height;
+  this.totalWidth = CALEB_WIDTH;
+  this.totalHeight = CALEB_HEIGHT;
   this.calebID = null;
   this.engine = engine
+}
+
+CalebObj.prototype.getVisualX = function() {
+  return this.x - this.totalWidth * this.scaleX / 2
+}
+
+CalebObj.prototype.getVisualY = function() {
+  return this.y - this.totalHeight * this.scaleY / 2
 }
 
 CalebObj.prototype.update = function(delta) {
@@ -41,24 +49,37 @@ CalebObj.prototype.update = function(delta) {
     this.engine.queueUnregisterEntity(this.calebID);
   }
 
-  const mousePos = { px: this.engine.mouseX, py: this.engine.mouseY }
-  const calebPos = { x: this.x - this.width * this.scaleX / 2, y: this.y - this.height * this.scaleY / 2, width: this.width * this.scaleX, height: this.height * this.scaleY }
-  console.log(this.engine.isMouseClicked)
-  if (isPointInRect(mousePos, calebPos) && this.engine.isMouseClicked) {
+  if (isPointInRect(this.engine.mouseX, this.engine.mouseY,
+    this.getVisualX(),
+    this.getVisualY(),
+    this.totalWidth * this.scaleX,
+    this.totalHeight * this.scaleY
+  ) && this.engine.isMouseClicked) {
+    this.engine.isMouseClicked = false;
     this.engine.queueUnregisterEntity(this.calebID);
+    increaseScore();
+    console.log(getScore())
   }
 };
+
+
 
 CalebObj.prototype.lateUpdate = function(delta) { };
 
 CalebObj.prototype.draw = function(ctx) {
-  const posX = this.x - this.width * this.scaleX / 2;
-  const posY = this.y - this.height * this.scaleY / 2;
-  ctx.drawImage(this.image, posX, posY, this.scaleX * this.width, this.scaleY * this.height);
+  const posX = this.x - this.totalWidth * this.scaleX / 2;
+  const posY = this.y - this.totalHeight * this.scaleY / 2;
+  ctx.drawImage(this.image, this.getVisualX(), this.getVisualY(), this.scaleX * this.totalWidth, this.scaleY * this.totalHeight);
 };
 
-export const spawnCaleb = (engine, x, y, width = CALEB_WIDTH, height = CALEB_HEIGHT) => {
-  const caleb = new CalebObj(engine, x, y, width, height, 0, 0);
+export const spawnCaleb = (engine, x, y) => {
+  const caleb = new CalebObj(engine);
+  caleb.x = x;
+  caleb.y = y;
+  caleb.totalWidth = CALEB_WIDTH;
+  caleb.totalHeight = CALEB_HEIGHT;
+  caleb.scaleX = 0;
+  caleb.scaleY = 0;
   const id = engine.registerEntity(caleb);
   caleb.calebID = id;
 };
