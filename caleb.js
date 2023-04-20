@@ -1,5 +1,4 @@
 import { isPointInRect } from "./utils.js";
-import { increaseScore, removeLife } from "./scorecounter.js";
 
 export const CALEB_WIDTH = 100;
 export const CALEB_HEIGHT = 100;
@@ -36,6 +35,7 @@ CalebObj.prototype.getVisualY = function() {
   return this.y - this.totalHeight * this.scaleY / 2
 }
 
+// eslint-disable-next-line no-unused-vars
 CalebObj.prototype.update = function(delta) {
   this.x += this.dx;
   this.y += this.dy;
@@ -69,12 +69,10 @@ CalebObj.prototype.update = function(delta) {
   }
 };
 
-
+// eslint-disable-next-line no-unused-vars
 CalebObj.prototype.lateUpdate = function(delta) { };
 
 CalebObj.prototype.draw = function(ctx) {
-  const posX = this.x - this.totalWidth * this.scaleX / 2;
-  const posY = this.y - this.totalHeight * this.scaleY / 2;
   ctx.drawImage(this.image, this.getVisualX(), this.getVisualY(), this.scaleX * this.totalWidth, this.scaleY * this.totalHeight);
 };
 
