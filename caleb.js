@@ -87,4 +87,5 @@ export const spawnCaleb = (engine, x, y, onclick) => {
   const id = engine.registerEntity(caleb);
   caleb.calebID = id;
   caleb.onclick = onclick
+  return caleb
 };
