@@ -66,6 +66,7 @@ export class Engine {
 }
 
 export function Timer(interval, startTime) {
+  this.paused = true;
   if (startTime === undefined) {
     this.timeUntilNext = interval;
   } else {
@@ -76,6 +77,9 @@ export function Timer(interval, startTime) {
 }
 
 Timer.prototype.update = function(delta) {
+  if (this.paused) {
+    return;
+  }
   this.timeUntilNext -= delta;
   if (this.timeUntilNext < 0) {
     this.timeUntilNext = this.interval;
@@ -83,4 +87,8 @@ Timer.prototype.update = function(delta) {
       this.func();
     }
   }
+};
+
+Timer.prototype.start = function() {
+  this.paused = false;
 };

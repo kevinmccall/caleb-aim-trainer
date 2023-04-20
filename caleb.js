@@ -4,6 +4,7 @@ import { increaseScore, removeLife } from "./scorecounter.js";
 export const CALEB_WIDTH = 100;
 export const CALEB_HEIGHT = 100;
 const CALEB_IMG_PATH = "https://kevinmccall.github.io/caleb.webp";
+const CALEB_THONK_IMG_PATH = "https://kevinmccall.github.io/5head.webp";
 const CALEB_SWITCH_SCALE = 1;
 const CALEB_END_SCALE = 0;
 const CALEB_GROWTH_RATE = 0.003;
@@ -24,6 +25,7 @@ export function CalebObj(engine) {
   this.calebID = null;
   this.engine = engine;
   this.onclick = null;
+  this.ondeath = null;
 }
 
 CalebObj.prototype.getVisualX = function() {
@@ -48,7 +50,9 @@ CalebObj.prototype.update = function(delta) {
     this.growing = false;
   } else if (Math.max(this.scaleX, this.scaleY) <= CALEB_END_SCALE && !this.growing) {
     this.engine.queueUnregisterEntity(this.calebID);
-    removeLife();
+    if (this.ondeath != null && typeof this.ondeath === 'function') {
+      this.ondeath();
+    }
   }
 
   if (isPointInRect(this.engine.mouseX, this.engine.mouseY,
@@ -59,13 +63,11 @@ CalebObj.prototype.update = function(delta) {
   ) && this.engine.isMouseClicked) {
     this.engine.isMouseClicked = false;
     this.engine.queueUnregisterEntity(this.calebID);
-    increaseScore();
-    if (this.onclick !== null && typeof this.onclick === 'function') {
+    if (this.onclick != null && typeof this.onclick === 'function') {
       this.onclick();
     }
   }
 };
-
 
 
 CalebObj.prototype.lateUpdate = function(delta) { };
@@ -76,7 +78,7 @@ CalebObj.prototype.draw = function(ctx) {
   ctx.drawImage(this.image, this.getVisualX(), this.getVisualY(), this.scaleX * this.totalWidth, this.scaleY * this.totalHeight);
 };
 
-export const spawnCaleb = (engine, x, y, onclick) => {
+export const spawnCaleb = (engine, x, y, onclick, ondeath) => {
   const caleb = new CalebObj(engine);
   caleb.x = x;
   caleb.y = y;
@@ -86,6 +88,23 @@ export const spawnCaleb = (engine, x, y, onclick) => {
   caleb.scaleY = 0;
   const id = engine.registerEntity(caleb);
   caleb.calebID = id;
-  caleb.onclick = onclick
+  caleb.onclick = onclick;
+  caleb.ondeath = ondeath;
+  return caleb
+};
+
+export const spawnStarterCaleb = (engine, x, y, onclick, ondeath) => {
+  const caleb = new CalebObj(engine);
+  caleb.image.src = CALEB_THONK_IMG_PATH;
+  caleb.x = x;
+  caleb.y = y;
+  caleb.totalWidth = CALEB_WIDTH;
+  caleb.totalHeight = CALEB_HEIGHT;
+  caleb.scaleX = 0;
+  caleb.scaleY = 0;
+  const id = engine.registerEntity(caleb);
+  caleb.calebID = id;
+  caleb.onclick = onclick;
+  caleb.ondeath = ondeath;
   return caleb
 };
