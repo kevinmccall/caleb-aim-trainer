@@ -10,20 +10,7 @@ export class Engine {
     this.canvas.height = window.innerHeight - 10;
     this.toDelete = [];
     this.currentElementID = 0;
-    this.mouseX = null;
-    this.mouseY = null;
-    this.isMouseClicked = false;
     this.playing = true;
-    this.canvas.onmousemove = (event) => {
-      this.mouseX = event.x;
-      this.mouseY = event.y
-    };
-    this.canvas.onmousedown = () => {
-      this.isMouseClicked = true;
-    }
-    this.canvas.onmouseup = () => {
-      this.isMouseClicked = false;
-    }
   }
   registerEntity(entity) {
     this.updatedObjects.set(this.currentElementID, entity);
@@ -46,16 +33,13 @@ export class Engine {
         obj.draw(this.ctx);
       }
     });
-    this.updatedObjects.forEach((obj) => {
-      if (typeof (obj.draw) === 'function') {
-        obj.lateUpdate(delta);
-      }
-    });
-    this.toDelete.forEach((id) => {
-      delete this.updatedObjects.get(id);
-      this.updatedObjects.delete(id);
-    });
-    this.toDelete = [];
+    if (this.toDelete.length > 0) {
+      this.toDelete.forEach((id) => {
+        delete this.updatedObjects.get(id);
+        this.updatedObjects.delete(id);
+      });
+      this.toDelete = [];
+    }
     if (getLivesLeft() <= 0) {
       this.playing = false;
     }
@@ -65,30 +49,3 @@ export class Engine {
   }
 }
 
-export function Timer(interval, startTime) {
-  this.paused = true;
-  if (startTime === undefined) {
-    this.timeUntilNext = interval;
-  } else {
-    this.timeUntilNext = startTime;
-  }
-  this.interval = interval;
-  this.func = null;
-}
-
-Timer.prototype.update = function(delta) {
-  if (this.paused) {
-    return;
-  }
-  this.timeUntilNext -= delta;
-  if (this.timeUntilNext < 0) {
-    this.timeUntilNext = this.interval;
-    if (this.func !== null) {
-      this.func();
-    }
-  }
-};
-
-Timer.prototype.start = function() {
-  this.paused = false;
-};
