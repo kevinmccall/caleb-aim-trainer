@@ -12,7 +12,6 @@ export class Caleb {
         this.isGrowing = true;
         this.growthRate = config.calebGrowthRate;
         this.switchValue = config.calebSwitchValue;
-        this.endValue = config.calebEndValue;
         this.engine = engine;
         this.id = null;
     }
@@ -27,8 +26,7 @@ export class Caleb {
             this.rect.scale += this.growthRate * delta;
         } else {
             this.rect.scale -= this.growthRate * delta;
-            if (this.rect.scale < this.endValue) {
-                console.log(this)
+            if (this.rect.scale <= 0) {
                 this.onDoneGrowing();
             }
         }

@@ -1,37 +1,82 @@
-const CALEB_WIDTH = 100;
-const CALEB_HEIGHT = 100;
-const CALEB_IMG_PATH = "https://kevinmccall.github.io/caleb.webp";
-const CALEB_THONK_IMG_PATH = "https://kevinmccall.github.io/5head.webp";
-const CALEB_SWITCH_VALUE = 1;
-const CALEB_END_VALUE = 0;
-const CALEB_GROWTH_RATE = .5;
-const CALEB_MIN_SPEED = 10;
-const CALEB_MAX_SPEED = 100;
-const CALEB_START_SCALE = 0;
-const CALEB_SPAWN_INTERVAL = 1;
-const CALEB_RATE_INCREASE = 0.9;
-const RATE_CHANGE_INCREASE = 1.05;
-const CHANGE_RATE_INTERVAL = 3;
-const START_CALEB_SPAWN_INTERVAL = 5;
-const CALEB_MISSED_TO_LOSE = 3;
-
-
-
 export const config = {
-  calebWidth: CALEB_WIDTH,
-  calebHeight: CALEB_HEIGHT,
-  calebImagePath: CALEB_IMG_PATH,
-  calebThonkImagePath: CALEB_THONK_IMG_PATH,
-  calebSwitchValue: CALEB_SWITCH_VALUE,
-  calebEndValue: CALEB_END_VALUE,
-  calebGrowthRate: CALEB_GROWTH_RATE,
-  calebMinSpeed: CALEB_MIN_SPEED,
-  calebMaxSpeed: CALEB_MAX_SPEED,
-  calebStartScale: CALEB_START_SCALE,
-  calebSpawnInterval: CALEB_SPAWN_INTERVAL,
-  calebRateIncrease: CALEB_RATE_INCREASE,
-  calebRateIncreaseIncrease: RATE_CHANGE_INCREASE,
-  changeRateInterval: CHANGE_RATE_INTERVAL,
-  startCalebSpawnInterval: START_CALEB_SPAWN_INTERVAL,
-  numLives: CALEB_MISSED_TO_LOSE
+  /** The width of the Caleb */
+  calebWidth: 100,
+  /** The height of the Caleb */
+  calebHeight: 100,
+  /** The image for the caleb */
+  calebImagePath: "https://kevinmccall.github.io/caleb.webp",
+  /** The alternate image for the caleb */
+  calebThonkImagePath: "https://kevinmccall.github.io/5head.webp",
+  /** The scale value which the Caleb goes from growing to shrinking */
+  calebSwitchValue: 1,
+  /** The rate at which the Caleb grows/shrinks*/
+  calebGrowthRate: .5,
+  /** The minimum velocity in pixels/second of a Caleb */
+  calebMinSpeed: 10,
+  /** The maximum velocity in pixels/second of a Caleb */
+  calebMaxSpeed: 100,
+  /** The scale at which the caleb starts at */
+  calebStartScale: 0,
+  /** The *starting* interval for the spawn rates of caleb. One Caleb will
+   * spawn every calebSpawnInterval seconds. This is not constant,
+   * it is modified by calebRateIncrease
+  */
+  calebSpawnInterval: 5,
+  /** Multiplicative change of the spawn rate of Calebs. This is not constant,
+   * it is modified by calebRateIncreaseIncrease
+  */
+  calebRateIncrease: 0.9,
+  /** The multiplicative change of the spawn rates of spawn rates of Calebs.
+   * This property is analagous to the acceleration of difficulty.
+   */
+  calebRateIncreaseIncrease: 1.05,
+  /** This is how many seconds that it takes for a calebRateIncrease and a
+   * calebRateIncreaseIncrease to take effect*/
+  changeRateInterval: 3,
+  /** Natural number of missed Calebs before the game is over */
+  numLives: 3
 };
+const configMenu = document.getElementById("config")
+const optionsContainer = configMenu.getElementsByClassName("property-container")[0];
+
+
+
+function initConfigMenu() {
+  for (let property in config) {
+    let label = document.createElement("label");
+    let input = document.createElement("input");
+    input.value = config[property];
+    label.name = property;
+    label.id = property;
+    label.innerText = property;
+    label.appendChild(input)
+    optionsContainer.appendChild(label);
+    document.getElementById("config-confirm").onclick = () => {
+      console.log("confirm")
+      saveConfig()
+    }
+    document.getElementById("config-cancel").onclick = () => {
+      console.log("cancel")
+      closeConfigMenu();
+    }
+  }
+}
+
+export function openConfigMenu() {
+  for (let element of optionsContainer.children) {
+    element.children[0].value = config[element.innerText];
+  }
+  configMenu.hidden = false;
+}
+
+function saveConfig() {
+  for (let element of optionsContainer.children) {
+    config[element.innerText] = element.children[0].value;
+  }
+}
+
+export function closeConfigMenu() {
+  configMenu.hidden = true;
+}
+
+initConfigMenu()

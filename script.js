@@ -1,11 +1,15 @@
 import { Engine } from "./engine.js";
-import { config } from "./config.js";
-import { randInt } from "./utils.js";
+import { config, openConfigMenu, closeConfigMenu } from "./config.js";
+
 
 const engine = new Engine();
-setInterval(() => {
-    const x = randInt(config.calebWidth / 2, engine.canvas.width - config.calebWidth / 2);
-    const y = randInt(config.calebHeight / 2, engine.canvas.height - config.calebHeight / 2);
-    engine.createCaleb(x, y);
-}, config.calebGrowthRate * 1000)
-engine.update()
+let startButton = document.getElementById("start");
+openConfigMenu()
+
+startButton.onclick = () => {
+    console.log(config.numLives);
+    closeConfigMenu();
+    console.log("start")
+    engine.start()
+    startButton.hidden = true;
+}
