@@ -1,50 +1,55 @@
-import { isPointInRect } from "./utils.js";
+import { config } from "./config.js";
 
-export function CalebObj(img, width, height) {
-  this.x = 0;
-  this.y = 0;
-  this.scaleX = 1;
-  this.scaleY = 1;
-  this.growing = true;
-  this.image = img;
-  this.totalWidth = width;
-  this.totalHeight = height;
-  this.calebID = null;
+export class Caleb {
+    /**
+     * 
+     * @param {Rect} rect 
+     * @param {Grower} grower 
+     */
+    constructor(rect, img, engine) {
+        this.rect = rect;
+        this.img = img;
+        this.isGrowing = true;
+        this.growthRate = config.calebGrowthRate;
+        this.switchValue = config.calebSwitchValue;
+        this.endValue = config.calebEndValue;
+        this.engine = engine;
+        this.id = null;
+    }
+
+    onDoneGrowing() {
+        this.engine.queueUnregisterEntity(this.id);
+        this.engine.lives -= 1;
+    }
+
+    update(delta) {
+        if (this.isGrowing) {
+            this.rect.scale += this.growthRate * delta;
+        } else {
+            this.rect.scale -= this.growthRate * delta;
+            if (this.rect.scale < this.endValue) {
+                console.log(this)
+                this.onDoneGrowing();
+            }
+        }
+        if (this.rect.scale >= this.switchValue) {
+            this.isGrowing = false;
+        }
+    }
+
+    onClick() {
+        this.engine.score++;
+        this.engine.queueUnregisterEntity(this.id);
+    }
+
+
+
+    /**
+     * 
+     * @param {CanvasRenderingContext2D} ctx 
+     */
+    draw(ctx) {
+        ctx.drawImage(this.img, this.rect.getLeft(), this.rect.getTop(), this.rect.getWidth(), this.rect.getHeight())
+    }
 }
 
-CalebObj.prototype.update = function(delta) {
-  if (isPointInRect(this.engine.mouseX, this.engine.mouseY,
-    this.getVisualX(),
-    this.getVisualY(),
-    this.totalWidth * this.scaleX,
-    this.totalHeight * this.scaleY
-  ) && this.engine.isMouseClicked) {
-    this.engine.isMouseClicked = false;
-    this.engine.queueUnregisterEntity(this.calebID);
-    if (this.onclick != null && typeof this.onclick === 'function') {
-      this.onclick();
-    }
-  }
-};
-
-CalebObj.prototype.onClick = function(delta) {
-  if (isPointInRect(this.engine.mouseX, this.engine.mouseY,
-    this.getVisualX(),
-    this.getVisualY(),
-    this.totalWidth * this.scaleX,
-    this.totalHeight * this.scaleY
-  ) && this.engine.isMouseClicked) {
-    this.engine.isMouseClicked = false;
-    this.engine.queueUnregisterEntity(this.calebID);
-    if (this.onclick != null && typeof this.onclick === 'function') {
-      this.onclick();
-    }
-  }
-};
-
-CalebObj.prototype.onDisappear = function(delta) {
-  this.engine.queueUnregisterEntity(this.calebID);
-  if (this.onclick != null && typeof this.onclick === 'function') {
-    this.onclick();
-  }
-}
