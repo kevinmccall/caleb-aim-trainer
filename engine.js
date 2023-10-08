@@ -3,37 +3,47 @@ import { config } from "./config.js";
 import { Rect } from "./rect.js";
 import { randInt } from "./utils.js";
 
-const defaultFont = "sans-serif"
+const defaultFont = "sans-serif";
+/** border of rendering canvas in pixels */
+const screenBorder = 10;
 
 export class Engine {
     constructor() {
         /** @type {HTMLCanvasElement} */
         this.canvas = document.getElementById("screen");
+        this.canvas.width = window.innerWidth - screenBorder;
+        this.canvas.height = window.innerHeight - screenBorder;
         /** @type {CanvasRenderingContext2D} */
         this.ctx = this.canvas.getContext("2d");
+        this.initGame();
+    }
+    initGame() {
         this.old = null;
         this.updatedObjects = new Map();
-        this.canvas.width = window.innerWidth - 10;
-        this.canvas.height = window.innerHeight - 10;
         this.toDelete = [];
         this.currentElementID = 0;
         this.playing = false;
-        this.canvas.addEventListener("mousemove", this.handleMouse.bind(this));
-        this.canvas.addEventListener("mousedown", this.handleMouseClick.bind(this));
         this.lives = null;
         this.mouseX = null;
         this.mouseY = null;
         this.nextSpawnTime = null;
         this.spawnDelay = null;
+        this.difficultyInterval = null;
         this.score = 0;
     }
-    start() {
+
+    startGame() {
         this.playing = true;
-        this.old = Date.now()
+        this.old = Date.now();
         this.nextSpawnTime = Date.now();
         this.lives = config.numLives;
-        this.spawnDelay = config.calebStartScale;
+        this.spawnDelay = config.calebSpawnInterval;
         this.update();
+        this.canvas.addEventListener("mousemove", this.handleMouse.bind(this));
+        this.canvas.addEventListener("mousedown", this.handleMouseClick.bind(this));
+        this.difficultyInterval = setInterval(() => {
+            this.spawnDelay *= config.calebRateIncrease;
+        }, config.changeRateInterval * 1000);
     }
 
     registerEntity(entity) {
@@ -45,34 +55,33 @@ export class Engine {
         this.toDelete.push(id);
     }
     update() {
-        let current = Date.now()
+        let current = Date.now();
         let delta = (current - this.old) / 1000;
         if (current > this.nextSpawnTime) {
             const x = randInt(config.calebWidth / 2, this.canvas.width - config.calebWidth / 2);
             const y = randInt(config.calebHeight / 2, this.canvas.height - config.calebHeight / 2);
             this.createCaleb(x, y);
-            this.nextSpawnTime = current + config.calebSpawnInterval * 1000;
+            this.nextSpawnTime = current + this.spawnDelay * 1000;
         }
 
         this.old = current;
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.updatedObjects.forEach((obj) => {
-            if (typeof (obj.update) === 'function') {
+            if (typeof obj.update === "function") {
                 obj.update(delta);
             }
-            if (typeof (obj.draw) === 'function') {
+            if (typeof obj.draw === "function") {
                 obj.draw(this.ctx);
             }
         });
         this.ctx.fillStyle = "white";
-        this.ctx.font = `40px ${defaultFont}`
+        this.ctx.font = `2.5rem ${defaultFont}`;
         this.ctx.textAlign = "center";
-        this.ctx.fillText(`Score: ${this.score}`, this.canvas.width / 2, 50);
-        this.ctx.font = `20px ${defaultFont}`;
+        this.ctx.textBaseline = "top";
+        this.ctx.fillText(`Score: ${this.score}`, this.canvas.width / 2, 0);
+        this.ctx.font = `1.5rem ${defaultFont}`;
         this.ctx.textAlign = "right";
-        let message = `Lives: ${this.lives}`;
-        let fontInfo = this.ctx.measureText(message);
-        this.ctx.fillText(message, this.canvas.width - fontInfo.width, 50);
+        this.ctx.fillText(`Lives: ${this.lives}`, this.canvas.width - 10, 5);
         if (this.toDelete.length > 0) {
             this.toDelete.forEach((id) => {
                 delete this.updatedObjects.get(id);
@@ -103,12 +112,16 @@ export class Engine {
     }
 
     endGame() {
-        console.log('game has ended')
+        console.log("game has ended");
+        this.updatedObjects.clear();
+        this.toDelete = [];
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.textAlign = "center";
+        this.ctx.textBaseline = "middle";
         this.ctx.fillStyle = "red";
-        this.ctx.font = `60px ${defaultFont}`
-        this.ctx.fillText("game over :(", this.canvas.width / 2, this.canvas.height / 2)
+        this.ctx.font = `5rem ${defaultFont}`;
+        this.ctx.fillText("game over :(", this.canvas.width / 2, this.canvas.height / 2);
+        clearInterval(this.difficultyInterval);
     }
 
     createCaleb(x, y) {
@@ -122,4 +135,3 @@ export class Engine {
         this.registerEntity(caleb);
     }
 }
-

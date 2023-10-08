@@ -1,15 +1,14 @@
 import { Engine } from "./engine.js";
 import { config, openConfigMenu, closeConfigMenu } from "./config.js";
 
-
 const engine = new Engine();
 let startButton = document.getElementById("start");
-openConfigMenu()
+openConfigMenu();
 
 startButton.onclick = () => {
     console.log(config.numLives);
     closeConfigMenu();
-    console.log("start")
-    engine.start()
+    console.log("start");
+    engine.startGame();
     startButton.hidden = true;
-}
+};

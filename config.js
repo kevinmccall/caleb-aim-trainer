@@ -25,14 +25,14 @@ const defaultConfig = {
     /** Multiplicative change of the spawn rate of Calebs. This is not constant,
      * it is modified by calebRateIncreaseIncrease
      */
-    calebRateIncrease: 0.9,
+    calebRateIncrease: 0.95,
     /** The multiplicative change of the spawn rates of spawn rates of Calebs.
      * This property is analagous to the acceleration of difficulty.
      */
     calebRateIncreaseIncrease: 1.05,
     /** This is how many seconds that it takes for a calebRateIncrease and a
      * calebRateIncreaseIncrease to take effect*/
-    changeRateInterval: 3,
+    changeRateInterval: 5,
     /** Natural number of missed Calebs before the game is over */
     numLives: 3,
 };
